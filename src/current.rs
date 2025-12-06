@@ -27,8 +27,8 @@
 /// // Example: 5.5 kW motor, 380 V, cosφ = 0.82, η = 0.88
 /// let i = current(5.5, 380.0, 0.82, 0.88);
 ///
-/// // Expected ≈ 12.2 A
-/// assert!((i - 12.2).abs() < 0.1);
+/// // Expected ≈ 11.58 A
+/// assert!((i - 11.58).abs() < 0.1);
 /// ```
 ///
 /// # Note
