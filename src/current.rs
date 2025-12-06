@@ -37,3 +37,17 @@
 pub fn current(power_kw: f32, voltage: f32, power_factor: f32, efficiency: f32) -> f32 {
     (power_kw * 1000.0) / (f32::sqrt(3.0) * voltage * power_factor * efficiency)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_current_calculation() {
+        // Example from theory:
+        // 5.5 kW / (sqrt(3) * 380V * 0.82 * 0.88) ≈ 12.2 A
+        let i = current(5.5, 380.0, 0.82, 0.88);
+
+        assert!((i - 11.58).abs() < 0.1, "Expected ~11.58 A, got {}", i);
+    }
+}
