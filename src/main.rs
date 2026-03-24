@@ -1,20 +1,45 @@
-use std::env;
-use crate::current::current;
+use clap::Parser;
 
 mod current;
+use crate::current::current;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about = "Calculates current based on power and voltage")]
+struct Args {
+    /// Power value (e.g., 100w, 1.5kw)
+    #[arg(short, long)]
+    power: String,
+
+    /// Voltage in Volts
+    #[arg(short, long, default_value_t = 230.0)]
+    voltage: f32,
+
+    /// Power factor (cos φ)
+    #[arg(short = 'f', long, default_value_t = 1.0)]
+    power_factor: f32,
+
+    /// Efficiency (0.0 - 1.0)
+    #[arg(short, long, default_value_t = 1.0)]
+    efficiency: f32,
+}
+
+fn parse_power(s: &str) -> f32 {
+    let s = s.to_lowercase();
+    if s.ends_with("kw") {
+        s.trim_end_matches("kw").parse().expect("Invalid kw")
+    } else if s.ends_with("w") {
+        s.trim_end_matches("w").parse::<f32>().expect("Invalid w") / 1000.0
+    } else {
+        s.parse().expect("Invalid power")
+    }
+}
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args = Args::parse();
 
-    if args.len() != 5 {
-        eprintln!("Usage: {} <power_kw> <voltage> <power_factor> <efficiency>", args[0]);
-    }
+    let p_kw = parse_power(&args.power);
+    let i = current(p_kw, args.voltage, args.power_factor, args.efficiency);
 
-    let power_kw: f32 = args[1].parse().expect("Invalid power_kw");
-    let voltage: f32 = args[2].parse().expect("Invalid voltage");
-    let power_factor: f32 = args[3].parse().expect("Invalid power_factor");
-    let efficiency: f32 = args[4].parse().expect("Invalid efficiency");
-
-    let i = current(power_kw, voltage, power_factor, efficiency);
+    println!("Results for {} (Parsed: {} kW):", args.power, p_kw);
     println!("Current: {:.2} A", i);
 }
